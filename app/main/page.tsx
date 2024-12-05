@@ -6,63 +6,48 @@ import { motion } from 'framer-motion'
 
 export default function MainPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [isMounted, setIsMounted] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    setIsMounted(true)
-    const canvas = canvasRef.current
-    if (!canvas) return
+    setIsClient(true)
+  }, [])
 
+  useEffect(() => {
+    if (!canvasRef.current) return
+
+    const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size
-    const handleResize = () => {
-      if (!canvas) return
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-    handleResize()
-    window.addEventListener('resize', handleResize)
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
 
-    // Star properties
-    const stars: Array<{
-      x: number
-      y: number
-      size: number
-      speed: number
-    }> = []
+    const stars: Array<{ x: number; y: number; size: number; speed: number }> = []
     const numStars = 200
 
-    // Initialize stars
     for (let i = 0; i < numStars; i++) {
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 2,
-        speed: Math.random() * 0.5 + 0.1
+        speed: Math.random() * 3 + 1
       })
     }
 
-    // Animation function
     function animate() {
       if (!ctx || !canvas) return
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      
-      // Draw stars
+      ctx.fillStyle = 'black'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      ctx.fillStyle = '#5BC2E7'
       stars.forEach(star => {
-        if (!ctx || !canvas) return
-        ctx.fillStyle = '#ffffff'
         ctx.beginPath()
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
         ctx.fill()
 
-        // Move star
-        star.y -= star.speed
-        
-        // Reset star position if it goes off screen
-        if (star.y < 0) {
-          star.y = canvas.height
+        star.y += star.speed
+        if (star.y > canvas.height) {
+          star.y = 0
           star.x = Math.random() * canvas.width
         }
       })
@@ -72,118 +57,67 @@ export default function MainPage() {
 
     animate()
 
-    return () => {
-      window.removeEventListener('resize', handleResize)
+    const handleResize = () => {
+      if (!canvas) return
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
     }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const textVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    },
-    hover: { 
-      scale: 1.1,
-      transition: { duration: 0.2 }
-    }
-  }
+  if (!isClient) return null
 
   return (
-    <main className="relative w-full h-screen overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: 'url(https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ZIMA1.jpg-12h6irqaiefdgFVLi9xTkpUKycDe7C.jpeg)'
-        }}
-      />
-      
-      {/* Darkening Overlay */}
-      <div className="absolute inset-0 bg-black/30" />
-      
-      {/* Animated Stars */}
-      <canvas 
+    <div className="relative min-h-screen overflow-hidden">
+      <canvas
         ref={canvasRef}
-        className="absolute inset-0 pointer-events-none"
+        className="absolute top-0 left-0 w-full h-full"
       />
-
-      {/* Navigation Text */}
-      {isMounted && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-full max-w-7xl px-4 flex flex-col md:flex-row items-center justify-between text-white font-navigation">
-            {/* Left */}
-            <motion.div
-              variants={textVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover="hover"
-            >
-              <Link 
-                href="https://twitter.com" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-lg md:text-xl font-bold hover:text-[#5BC2E7] transition-colors nav-glow"
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center text-[#5BC2E7] font-mono">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center space-y-8"
+        >
+          <div className="space-y-4">
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
+              <Link
+                href="https://twitter.com/ZimaBlueAI"
+                className="block text-2xl hover:text-white transition-colors"
               >
                 TWITTER
               </Link>
             </motion.div>
-
-            {/* Center */}
-            <div className="flex items-center gap-4 md:gap-8 text-sm md:text-base my-4 md:my-0">
-              <span className="text-white/50">consult</span>
-              <motion.div
-                variants={textVariants}
-                initial="hidden"
-                animate="visible"
-                whileHover="hover"
-              >
-                <Link 
-                  href="/buy" 
-                  className="text-xl md:text-2xl font-bold hover:text-[#5BC2E7] transition-colors nav-glow"
-                >
-                  BUY
-                </Link>
-              </motion.div>
-              <span className="text-white/50">with</span>
-              <motion.div
-                variants={textVariants}
-                initial="hidden"
-                animate="visible"
-                whileHover="hover"
-              >
-                <Link 
-                  href="/terminal" 
-                  className="text-xl md:text-2xl font-bold hover:text-[#5BC2E7] transition-colors nav-glow"
-                >
-                  ZIMA
-                </Link>
-              </motion.div>
-            </div>
-
-            {/* Right */}
-            <motion.div
-              variants={textVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover="hover"
-            >
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
               <Link
-                href="/ZIMA-PROOF-OF-AUTOMATION.pdf.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-lg md:text-xl font-bold nav-glow"
+                href="#"
+                className="block text-2xl hover:text-white transition-colors"
+              >
+                BUY
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
+              <Link
+                href="/terminal"
+                className="block text-2xl hover:text-white transition-colors"
+              >
+                ZIMA
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
+              <Link
+                href="#"
+                className="block text-2xl hover:text-white transition-colors"
               >
                 PROOF OF AUTOMATION
               </Link>
             </motion.div>
           </div>
-        </div>
-      )}
-    </main>
+        </motion.div>
+      </div>
+    </div>
   )
 }

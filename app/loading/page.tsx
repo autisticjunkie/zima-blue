@@ -4,32 +4,32 @@ import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LoadingPage() {
-  const router = useRouter()
   const videoRef = useRef<HTMLVideoElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     const timer = setTimeout(() => {
       router.push('/main')
     }, 5000)
 
-    const video = videoRef.current
-    if (video) {
-      video.play().catch(error => {
-        console.error('Error playing video:', error)
-      })
-    }
-
     return () => clearTimeout(timer)
   }, [router])
 
+  useEffect(() => {
+    const video = videoRef.current
+    if (video) {
+      video.play().catch((error: Error) => {
+        console.error('Error playing video:', error.message)
+      })
+    }
+  }, [])
+
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <div className="min-h-screen bg-black flex items-center justify-center">
       <video
         ref={videoRef}
         className="w-full h-full object-cover"
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/animation.gif%20(1)-hpZGbcWJKQgPMWBVM6PIRBTHL8bc7J.mp4"
-        autoPlay
-        loop
+        src="https://zima-blue.vercel.app/loading.mp4"
         muted
         playsInline
       />

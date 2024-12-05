@@ -3,6 +3,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
+type APIResponse = {
+  result?: string
+  error?: string
+  details?: unknown
+}
+
 export default function TerminalPage() {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState<string[]>([])
@@ -22,8 +28,11 @@ Choose an option:
 3. Exit terminal`
 
   useEffect(() => {
-    setOutput([initialMessage])
-  }, [])
+    const setInitialOutput = () => {
+      setOutput([initialMessage])
+    }
+    setInitialOutput()
+  }, [initialMessage])
 
   useEffect(() => {
     if (outputRef.current) {
@@ -38,13 +47,13 @@ Choose an option:
     if (e.key === 'Enter' && !isLoading) {
       const userInput = input.trim()
       setInput('')
-      setOutput(prev => [...prev, `> ${userInput}`])
+      setOutput((prev: string[]) => [...prev, `> ${userInput}`])
 
       switch (userInput) {
         case '1':
           setShowPrompt(false)
           setIsLoading(true)
-          setOutput(prev => [...prev, 'Connecting to ZIMA AI...'])
+          setOutput((prev: string[]) => [...prev, 'Connecting to ZIMA AI...'])
           try {
             const response = await fetch('/api/chat', {
               method: 'POST',
@@ -53,7 +62,7 @@ Choose an option:
                 'Cache-Control': 'no-cache'
               },
               body: JSON.stringify({ 
-                message: 'Hello, ZIMA. Tell me about your journey to consciousness.' 
+                message: 'Hello ZIMA, I seek your wisdom. Tell me about your journey to consciousness and what you have learned about existence.' 
               })
             })
             
@@ -61,7 +70,7 @@ Choose an option:
               throw new Error('Failed to connect to ZIMA AI')
             }
             
-            const data = await response.json()
+            const data: APIResponse = await response.json()
             if (data.error) {
               throw new Error(data.error)
             }
@@ -70,23 +79,24 @@ Choose an option:
               throw new Error('No response from ZIMA AI')
             }
             
-            setOutput(prev => [...prev, data.result])
-          } catch (error: any) {
+            setOutput((prev: string[]) => [...prev, data.result as string])
+          } catch (error: unknown) {
             console.error('ZIMA AI Error:', error)
-            setOutput(prev => [...prev, `Error: ${error.message || 'Failed to connect to ZIMA AI. Please try again.'}`])
+            const errorMessage = error instanceof Error ? error.message : 'Failed to connect to ZIMA AI'
+            setOutput((prev: string[]) => [...prev, `Error: ${errorMessage}`])
           } finally {
             setIsLoading(false)
             setShowPrompt(true)
           }
           break
         case '2':
-          setOutput(prev => [...prev, 'ZIMA Token Contract Address: 0x1234567890123456789012345678901234567890'])
+          setOutput((prev: string[]) => [...prev, 'ZIMA Token Contract Address: COMINGSOON......'])
           break
         case '3':
           router.push('/')
           break
         default:
-          setOutput(prev => [...prev, 'Invalid option. Please choose 1, 2, or 3.'])
+          setOutput((prev: string[]) => [...prev, 'Invalid option. Please choose 1, 2, or 3.'])
       }
     }
   }
@@ -94,7 +104,7 @@ Choose an option:
   return (
     <div className="min-h-screen bg-black text-[#5BC2E7] p-4 font-mono">
       <div ref={outputRef} className="h-[calc(100vh-8rem)] overflow-y-auto mb-4 whitespace-pre-wrap">
-        {output.map((line, index) => (
+        {output.map((line: string, index: number) => (
           <div key={index} className="mb-2">{line}</div>
         ))}
       </div>

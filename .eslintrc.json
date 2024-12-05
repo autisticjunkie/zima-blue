@@ -1,12 +1,10 @@
 {
   "extends": [
-    "next/core-web-vitals", 
-    "next/typescript"  // Add this line to include TypeScript-specific ESLint rules
+    "next/core-web-vitals"
   ],
-  "plugins": ["@typescript-eslint", "react-hooks"],
+  "plugins": ["@typescript-eslint"],
   "rules": {
     "@typescript-eslint/no-explicit-any": "error",
     "react-hooks/exhaustive-deps": "warn"
   }
 }
-

@@ -25,11 +25,13 @@ export default function LoadingPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="fixed inset-0 w-full h-full">
       <video
         ref={videoRef}
         className="w-full h-full object-cover"
-        src="https://zima-blue.vercel.app/loading.mp4"
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/animation.gif%20(1)-hpZGbcWJKQgPMWBVM6PIRBTHL8bc7J.mp4"
+        autoPlay
+        loop
         muted
         playsInline
       />
